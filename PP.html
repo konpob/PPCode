@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แผนธุรกิจ PPCode (Corrected Financials)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --brand-purple: #8B5CF6; --brand-blue: #3B82F6; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .gradient-bg { background: linear-gradient(135deg, var(--brand-purple), var(--brand-blue)); }
+        .card { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; }
+        .input-box { width: 100%; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: right; font-family: 'Sarabun'; font-weight: 600; color: #334155; font-size: 14px; outline: none; transition: all 0.2s; }
+        .input-box:focus { border-color: #8B5CF6; box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .role-tag { font-size: 10px; padding: 2px 8px; border-radius: 99px; background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; font-weight: 600; white-space: nowrap; }
+    </style>
+</head>
+<body class="pb-24 text-sm">
+
+    <header class="gradient-bg text-white py-8 relative overflow-hidden shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 relative z-10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold mb-1">PPCode Business Plan</h1>
+                <p class="text-purple-100 opacity-90 text-sm md:text-base">ฉบับแก้ไข: คำนวณต้นทุนเต็มจำนวน (Full Operation Cost)</p>
+            </div>
+            <div class="flex gap-2">
+                <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs border border-white/30">Dev: 3 เดือน</span>
+                <span class="bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs border border-white/30">Sales: 3 ปี</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 -mt-8 relative z-20 mb-8">
+        <div class="card p-6 flex flex-wrap justify-between items-center gap-6 shadow-xl bg-white/95 backdrop-blur">
+            <div class="flex flex-wrap gap-8">
+                <div>
+                    <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">เงินลงทุนเริ่มต้น (Sunk Cost)</div>
+                    <div class="text-2xl font-bold text-red-500" id="header-capex">0 ฿</div>
+                    <div class="text-[10px] text-slate-400">ค่าแรง 3 เดือนแรก + อุปกรณ์</div>
+                </div>
+                <div class="w-px h-10 bg-slate-200 hidden md:block"></div>
+                <div>
+                    <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">จุดคุ้มทุน (Break-even)</div>
+                    <div class="text-xl font-bold text-blue-600" id="header-breakeven">-</div>
+                    <div class="text-[10px] text-slate-400">เมื่อกระแสเงินสดกลับมาเป็นบวก</div>
+                </div>
+                <div class="w-px h-10 bg-slate-200 hidden md:block"></div>
+                <div>
+                    <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">กำไรสะสม (สิ้นปีที่ 3)</div>
+                    <div class="text-2xl font-bold text-emerald-500" id="header-profit">0 ฿</div>
+                </div>
+            </div>
+            <button onclick="window.print()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition text-xs font-bold flex items-center gap-2">
+                🖨️ พิมพ์รายงาน
+            </button>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-6 space-y-6">
+
+        <div class="grid md:grid-cols-12 gap-6">
+            <div class="md:col-span-4 space-y-6">
+                <div class="card p-5">
+                    <h2 class="font-bold text-base mb-4 text-purple-700 flex items-center gap-2">
+                        👥 1. ฐานเงินเดือนทีมงาน
+                    </h2>
+                    <div id="team-container" class="space-y-3 mb-4 max-h-[250px] overflow-y-auto custom-scrollbar pr-2"></div>
+                    <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs text-slate-500">
+                        <div class="flex justify-between mb-1">
+                            <span>รวมเงินเดือน/เดือน:</span>
+                            <span class="font-bold text-slate-700" id="total-monthly">0</span>
+                        </div>
+                        <div class="flex justify-between text-purple-600 font-bold">
+                            <span>รวม 3 เดือน (ช่วงพัฒนา):</span>
+                            <span id="total-dev-cost">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-5">
+                    <h2 class="font-bold text-base mb-4 text-orange-600 flex items-center gap-2">
+                        🖥️ 2. อุปกรณ์ & สถานที่ (จ่ายครั้งเดียว)
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-xs font-bold text-slate-700">คอมพิวเตอร์ (6 เครื่อง)</div>
+                                <div class="text-[10px] text-slate-400">High Spec สำหรับ Dev/Design</div>
+                            </div>
+                            <div class="w-24">
+                                <input type="number" id="inp-computer" value="240000" class="input-box" onchange="recalc()">
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="text-xs font-bold text-slate-700">ตกแต่ง/มัดจำออฟฟิศ</div>
+                                <div class="text-[10px] text-slate-400">โต๊ะ เก้าอี้ สัญญาเช่า</div>
+                            </div>
+                            <div class="w-24">
+                                <input type="number" id="inp-office-setup" value="100000" class="input-box" onchange="recalc()">
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                            <span class="text-xs font-bold text-slate-500">รวมค่าอุปกรณ์:</span>
+                            <span class="text-sm font-bold text-orange-600" id="total-hardware">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:col-span-8">
+                <div class="card p-5 h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-base text-blue-600 flex items-center gap-2">
+                            🛠️ 3. รายละเอียดงาน (Scope)
+                        </h2>
+                        <div class="text-right">
+                            <div class="text-[10px] text-slate-400">Timeline Used</div>
+                            <div class="text-xs font-bold" id="capacity-text">0 / 66 Days</div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 mb-4 overflow-hidden">
+                        <div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-blue-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div id="feature-list" class="space-y-3 overflow-y-auto custom-scrollbar flex-1 pr-2 max-h-[500px]"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6">
+            <h2 class="font-bold text-lg mb-6 text-slate-800 border-b pb-2 flex justify-between items-end">
+                <span>💸 4. รายจ่ายรายเดือนหลังเปิดตัว (Monthly Burn Rate)</span>
+                <span class="text-xs font-normal text-slate-400">*คำนวณแบบจ่ายเงินเดือนเต็มจำนวน (Full Team)</span>
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">☁️ Server & Cloud</label>
+                    <input type="number" id="inp-server" value="20000" class="input-box mb-1" onchange="recalc()">
+                    <div class="text-[10px] text-slate-400">AWS, Firebase</div>
+                </div>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">📢 ยิงแอด/การตลาด</label>
+                    <input type="number" id="inp-marketing" value="30000" class="input-box mb-1 text-blue-600" onchange="recalc()">
+                    <div class="text-[10px] text-slate-400">FB/TikTok Ads</div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">🏢 ค่าเช่าออฟฟิศ</label>
+                    <input type="number" id="inp-rent" value="25000" class="input-box mb-1" onchange="recalc()">
+                    <div class="text-[10px] text-slate-400">รวมส่วนกลาง</div>
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">⚡ น้ำ/ไฟ/เน็ต</label>
+                    <input type="number" id="inp-utilities" value="5000" class="input-box mb-1" onchange="recalc()">
+                    <div class="text-[10px] text-slate-400">Internet Fiber</div>
+                </div>
+
+                <div class="bg-red-50 p-3 rounded-lg border border-red-100 flex flex-col justify-center">
+                    <div class="text-[10px] font-bold text-red-400 uppercase mb-1">รวมรายจ่าย/เดือน</div>
+                    <div class="text-xl font-bold text-red-600" id="txt-total-monthly-opex">0 ฿</div>
+                    <div class="text-[9px] text-red-400">(เงินเดือน + ค่าใช้จ่ายคงที่)</div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-6 items-center justify-center bg-white border border-slate-100 rounded-lg p-4 mb-6 shadow-sm">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-500">ราคาขาย (Sub):</span>
+                    <input type="number" id="inp-price" value="99" class="w-16 text-center font-bold text-emerald-600 border-b outline-none" onchange="recalc()">
+                    <span class="text-xs text-slate-400">บาท/เดือน</span>
+                </div>
+                <div class="w-px h-4 bg-slate-200"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-500">ลูกค้าเริ่ม:</span>
+                    <input type="number" id="inp-start-user" value="500" class="w-16 text-center font-bold text-slate-700 border-b outline-none" onchange="recalc()">
+                    <span class="text-xs text-slate-400">คน</span>
+                </div>
+                <div class="w-px h-4 bg-slate-200"></div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-slate-500">ลูกค้าใหม่ (โต/เดือน):</span>
+                    <input type="number" id="inp-growth" value="500" class="w-16 text-center font-bold text-blue-600 border-b outline-none" onchange="recalc()">
+                    <span class="text-xs text-slate-400">คน</span>
+                </div>
+            </div>
+
+            <div class="h-[350px] w-full mb-8">
+                <canvas id="mainChart"></canvas>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-right">
+                    <thead class="bg-slate-50 text-slate-500 border-b uppercase tracking-wider font-semibold">
+                        <tr>
+                            <th class="p-3 text-left">ระยะเวลา</th>
+                            <th class="p-3">ลูกค้า (คน)</th>
+                            <th class="p-3 text-emerald-600">รายได้ (Revenue)</th>
+                            <th class="p-3 text-red-500">รายจ่ายรวม (Total Cost)</th>
+                            <th class="p-3">กำไร/ขาดทุน (Net Profit)</th>
+                            <th class="p-3">เงินสดสะสม (Cash Flow)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="finance-table-body" class="divide-y divide-slate-100 font-sarabun text-slate-700"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center py-8 text-slate-400 text-xs">
+        © 2025 PPCode Business Plan Simulator (Corrected Logic)
+    </footer>
+
+    <script>
+        // --- 1. ข้อมูลตั้งต้น ---
+        
+        const teamData = [
+            { id: 0, role: 'CEO (ผู้บริหาร)', salary: 50000, short: 'CEO' },
+            { id: 1, role: 'CFO (การเงิน)', salary: 45000, short: 'CFO' },
+            { id: 2, role: 'CMO (การตลาด)', salary: 40000, short: 'CMO' },
+            { id: 3, role: 'COO (ปฏิบัติการ)', salary: 45000, short: 'COO' },
+            { id: 4, role: 'Dev 1 (Front)', salary: 55000, short: 'Dev1' },
+            { id: 5, role: 'Dev 2 (Back)', salary: 60000, short: 'Dev2' }
+        ];
+
+        const featuresData = [
+            // เดือนที่ 1
+            { name: "1. ออกแบบ UX/UI & Theme", days: 7, roles: [2, 4], desc: "ออกแบบ Mockup 30+ หน้า และ Design System" }, 
+            { name: "2. วางระบบฐานข้อมูล (Database)", days: 3, roles: [3, 5], desc: "ออกแบบ ER Diagram และ Cloud Server Architecture" },
+            { name: "3. ระบบสมาชิก & ความปลอดภัย", days: 5, roles: [4, 5], desc: "Login, OTP, Encryption, PDPA" },
+            { name: "4. ระบบบันทึก รายรับ-รายจ่าย", days: 5, roles: [4, 5], desc: "CRUD Transaction, หมวดหมู่, ค้นหา" },
+            
+            // เดือนที่ 2
+            { name: "5. สมองกล 3 เส้นทาง (Core Logic)", days: 10, roles: [0, 1, 5], desc: "สูตรคำนวณเปรียบเทียบ ออม vs ลงทุน vs ธุรกิจ" },
+            { name: "6. แบบประเมินความเสี่ยง (Risk)", days: 5, roles: [1, 5], desc: "Risk Scoring และการแนะนำพอร์ต" },
+            { name: "7. กราฟจำลองอนาคต 20 ปี", days: 7, roles: [1, 5], desc: "Interactive Projection Graph" },
+            { name: "8. ระบบตั้งเป้าหมาย (Goal)", days: 3, roles: [0, 4], desc: "Goal Tracking, Progress Bar" },
+
+            // เดือนที่ 3
+            { name: "9. แดชบอร์ดสรุปผล", days: 5, roles: [2, 4], desc: "Overview Dashboard, Charts" },
+            { name: "10. ระบบตัดบัตร (Subscription)", days: 5, roles: [3, 5], desc: "Payment Gateway, Auto-billing" },
+            { name: "11. ระบบหลังบ้าน (Admin)", days: 4, roles: [3, 5], desc: "User Management, Report" },
+            { name: "12. ทดสอบระบบ (Beta Test)", days: 7, roles: [0, 1, 2, 3, 4, 5], desc: "End-to-End Testing, Bug Fixes" }
+        ];
+
+        let chart = null;
+
+        // --- 2. LOGIC การคำนวณ ---
+
+        function init() {
+            renderTeam();
+            recalc();
+        }
+
+        function renderTeam() {
+            const container = document.getElementById('team-container');
+            container.innerHTML = teamData.map((m, i) => `
+                <div class="flex justify-between items-center text-xs border-b border-slate-100 pb-2 last:border-0">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 text-[10px] flex items-center justify-center font-bold text-slate-500">${m.short}</div>
+                        <div><div class="font-bold text-slate-700">${m.role}</div></div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="number" value="${m.salary}" class="input-box w-20 text-xs" onchange="updateSalary(${i}, this.value)">
+                        <span class="text-xs text-slate-400">บ.</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function recalc() {
+            // 1. ค่าแรงทีมงาน
+            const workDays = 22;
+            let totalMonthlySalary = 0;
+            const dailyRates = teamData.map(m => {
+                totalMonthlySalary += m.salary;
+                return { ...m, dailyRate: m.salary / workDays };
+            });
+
+            document.getElementById('total-monthly').innerText = totalMonthlySalary.toLocaleString() + " ฿";
+            const totalDevSalary = totalMonthlySalary * 3; // ค่าแรงช่วง Dev 3 เดือน
+            document.getElementById('total-dev-cost').innerText = totalDevSalary.toLocaleString() + " ฿";
+
+            // 2. ต้นทุนเริ่มต้น (Initial Investment)
+            const costComputer = parseFloat(document.getElementById('inp-computer').value) || 0;
+            const costOffice = parseFloat(document.getElementById('inp-office-setup').value) || 0;
+            const totalHardware = costComputer + costOffice;
+            document.getElementById('total-hardware').innerText = totalHardware.toLocaleString() + " ฿";
+
+            const initialInvestment = totalDevSalary + totalHardware;
+            document.getElementById('header-capex').innerText = initialInvestment.toLocaleString() + " ฿";
+
+            // 3. Feature Costs
+            const featureContainer = document.getElementById('feature-list');
+            let totalDevDays = 0;
+            let html = '';
+
+            featuresData.forEach((f, i) => {
+                let featureCost = 0;
+                let breakdownHtml = '';
+                f.roles.forEach(roleId => {
+                    const person = dailyRates.find(r => r.id === roleId);
+                    if(person) {
+                        const personCost = person.dailyRate * f.days;
+                        featureCost += personCost;
+                        breakdownHtml += `<div class="flex justify-between text-[10px] text-slate-500 border-b border-slate-50 py-1"><span>${person.role}</span><span>${Math.round(personCost).toLocaleString()}</span></div>`;
+                    }
+                });
+                totalDevDays += f.days;
+                html += `
+                    <div class="bg-white rounded-lg border border-slate-200 shadow-sm p-3 mb-3 hover:shadow-md transition">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center gap-2"><span class="bg-slate-100 text-[10px] px-2 rounded text-slate-500 font-bold">${i+1}</span><span class="font-bold text-slate-700 text-xs">${f.name}</span></div>
+                            <div class="text-[10px] text-slate-400">${f.days} วัน</div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div class="w-2/3 pr-2"><div class="text-[9px] text-slate-400 uppercase font-bold mb-1">รายละเอียดต้นทุน</div>${breakdownHtml}</div>
+                            <div class="text-right"><div class="text-[9px] text-slate-400">รวม</div><div class="font-bold text-sm text-purple-600">${Math.round(featureCost).toLocaleString()} ฿</div></div>
+                        </div>
+                    </div>`;
+            });
+            featureContainer.innerHTML = html;
+            
+            const maxDays = 66; 
+            const pct = (totalDevDays / maxDays) * 100;
+            document.getElementById('capacity-text').innerHTML = `${totalDevDays} / ${maxDays} วัน`;
+            document.getElementById('progress-bar').style.width = `${Math.min(pct, 100)}%`;
+
+            // 4. งบการเงิน (Financial Projection)
+            const price = parseFloat(document.getElementById('inp-price').value);
+            const startUser = parseFloat(document.getElementById('inp-start-user').value);
+            const growth = parseFloat(document.getElementById('inp-growth').value);
+            
+            const cServer = parseFloat(document.getElementById('inp-server').value) || 0;
+            const cAds = parseFloat(document.getElementById('inp-marketing').value) || 0;
+            const cRent = parseFloat(document.getElementById('inp-rent').value) || 0;
+            const cUtil = parseFloat(document.getElementById('inp-utilities').value) || 0;
+            
+            const fixedMonthlyOpEx = cServer + cAds + cRent + cUtil;
+            // *** แก้ไขจุดสำคัญ: คิดค่าแรงทีมงานเต็มจำนวนทุกเดือน ***
+            const totalMonthlyExpense = fixedMonthlyOpEx + totalMonthlySalary; 
+
+            document.getElementById('txt-total-monthly-opex').innerText = totalMonthlyExpense.toLocaleString() + " ฿";
+
+            let users = startUser;
+            let cash = -initialInvestment; // เริ่มต้นติดลบ
+            let breakEvenMonth = null;
+            
+            const labels = [];
+            const dataCash = [];
+            const tableBody = document.getElementById('finance-table-body');
+            tableBody.innerHTML = '';
+
+            for(let m=1; m<=36; m++) {
+                const revenue = users * price;
+                
+                const net = revenue - totalMonthlyExpense; // รายได้ - (ค่าใช้จ่ายคงที่ + เงินเดือนทีมงาน)
+                cash += net;
+                
+                if(cash >= 0 && breakEvenMonth === null) breakEvenMonth = m;
+                
+                labels.push(`ด.${m}`);
+                dataCash.push(cash);
+
+                if (m === 1 || m % 3 === 0) {
+                    const label = m === 1 ? "เปิดตัว (เดือน 1)" : `เดือนที่ ${m}`;
+                    tableBody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-50 last:border-0">
+                            <td class="p-3 text-left font-medium text-slate-700">${label}</td>
+                            <td class="p-3 text-slate-500">${Math.round(users).toLocaleString()}</td>
+                            <td class="p-3 text-emerald-600 font-medium">+${Math.round(revenue).toLocaleString()}</td>
+                            <td class="p-3 text-red-500 font-medium">-${Math.round(totalMonthlyExpense).toLocaleString()}</td>
+                            <td class="p-3 ${net > 0 ? 'text-emerald-600' : 'text-red-500'} font-bold">${Math.round(net).toLocaleString()}</td>
+                            <td class="p-3 ${cash > 0 ? 'text-emerald-600' : 'text-red-500'} font-bold bg-slate-50/50">${Math.round(cash).toLocaleString()}</td>
+                        </tr>
+                    `;
+                }
+                users += growth;
+            }
+
+            document.getElementById('header-profit').innerText = Math.round(cash).toLocaleString() + " ฿";
+            document.getElementById('header-breakeven').innerText = breakEvenMonth ? `เดือนที่ ${breakEvenMonth}` : "ยังไม่คืนทุน";
+
+            renderChart(labels, dataCash);
+        }
+
+        function updateSalary(idx, val) { teamData[idx].salary = parseFloat(val) || 0; recalc(); }
+        function updateFeatureDays(idx, val) { featuresData[idx].days = parseFloat(val) || 0; recalc(); }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (chart) chart.destroy();
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, 'rgba(139, 92, 246, 0.2)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.01)');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: labels, datasets: [{ label: 'เงินสดสะสม (บาท)', data: data, borderColor: '#8B5CF6', backgroundColor: gradient, borderWidth: 2, pointRadius: 0, pointHoverRadius: 6, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false }, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { grid: { color: '#f1f5f9' }, ticks: { callback: (val) => val/1000 + 'k' } } } }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
