@@ -164,6 +164,12 @@
                     <div class="text-[10px] text-slate-400">Internet Fiber</div>
                 </div>
 
+                <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase block mb-1">⚡ Maintenance / Dev Support</label>
+                    <input type="number" id="inp-user" value="50000" class="input-box mb-1" onchange="recalc()">
+                    <div class="text-[10px] text-slate-400">1 คน</div>
+                </div>
+
                 <div class="bg-red-50 p-3 rounded-lg border border-red-100 flex flex-col justify-center">
                     <div class="text-[10px] font-bold text-red-400 uppercase mb-1">รวมรายจ่าย/เดือน</div>
                     <div class="text-xl font-bold text-red-600" id="txt-total-monthly-opex">0 ฿</div>
@@ -342,8 +348,9 @@
             const cAds = parseFloat(document.getElementById('inp-marketing').value) || 0;
             const cRent = parseFloat(document.getElementById('inp-rent').value) || 0;
             const cUtil = parseFloat(document.getElementById('inp-utilities').value) || 0;
+            const cUser = parseFloat(document.getElementById('inp-user').value) || 0;
             
-            const fixedMonthlyOpEx = cServer + cAds + cRent + cUtil;
+            const fixedMonthlyOpEx = cServer + cAds + cRent + cUtil + cUser;
             // *** แก้ไขจุดสำคัญ: คิดค่าแรงทีมงานเต็มจำนวนทุกเดือน *** + totalMonthlySalary
             const totalMonthlyExpense = fixedMonthlyOpEx ; 
 
