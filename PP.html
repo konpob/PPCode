@@ -344,8 +344,8 @@
             const cUtil = parseFloat(document.getElementById('inp-utilities').value) || 0;
             
             const fixedMonthlyOpEx = cServer + cAds + cRent + cUtil;
-            // *** แก้ไขจุดสำคัญ: คิดค่าแรงทีมงานเต็มจำนวนทุกเดือน ***
-            const totalMonthlyExpense = fixedMonthlyOpEx + totalMonthlySalary; 
+            // *** แก้ไขจุดสำคัญ: คิดค่าแรงทีมงานเต็มจำนวนทุกเดือน *** + totalMonthlySalary
+            const totalMonthlyExpense = fixedMonthlyOpEx ; 
 
             document.getElementById('txt-total-monthly-opex').innerText = totalMonthlyExpense.toLocaleString() + " ฿";
 
@@ -369,7 +369,7 @@
                 labels.push(`ด.${m}`);
                 dataCash.push(cash);
 
-                if (m === 1 || m % 3 === 0) {
+                if (m === 1 || m % 1 === 0) {
                     const label = m === 1 ? "เปิดตัว (เดือน 1)" : `เดือนที่ ${m}`;
                     tableBody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition border-b border-slate-50 last:border-0">
